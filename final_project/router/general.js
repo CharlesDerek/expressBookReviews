@@ -30,13 +30,23 @@ public_users.post("/register", (req, res) => {
 // Get the book list available in the shop
 public_users.get("/", function (req, res) {
   //Write your code here
-  return res.status(200).json({ books });
+  const promise = new Promise((resolve, reject) => {
+    setTimeout(() => resolve(books), 600);
+  });
+
+  promise.then((result) => {
+    return res.status(200).json({ books: result });
+  });
 });
 
 // Get book details based on ISBN
-public_users.get("/isbn/:isbn", function (req, res) {
+public_users.get("/isbn/:isbn", async function (req, res) {
   //Write your code here
-  const book = books[req.params.isbn];
+  const promise = new Promise((resolve, reject) => {
+    setTimeout(() => resolve(books[req.params.isbn]), 600);
+  });
+
+  const book = await promise;
 
   if (book) {
     return res.status(200).json({ book });
@@ -46,13 +56,19 @@ public_users.get("/isbn/:isbn", function (req, res) {
 });
 
 // Get book details based on author
-public_users.get("/author/:author", function (req, res) {
+public_users.get("/author/:author", async function (req, res) {
   //Write your code here
   const authorName = req.params.author;
+  const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const filteredBooks = Object.values(books).filter(
+        (b) => b.author === authorName
+      );
+      resolve(filteredBooks);
+    }, 600);
+  });
 
-  const filteredBooks = Object.values(books).filter(
-    (b) => b.author === authorName
-  );
+  const filteredBooks = await promise;
 
   if (filteredBooks.length > 0) {
     return res.status(200).json({ books: filteredBooks });
@@ -62,10 +78,21 @@ public_users.get("/author/:author", function (req, res) {
 });
 
 // Get all books based on title
-public_users.get("/title/:title", function (req, res) {
+public_users.get("/title/:title", async function (req, res) {
   //Write your code here
   const title = req.params.title;
-  const filteredBooks = Object.values(books).filter((b) => b.title === title);
+
+  const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const filteredBooks = Object.values(books).filter(
+        (b) => b.title === title
+      );
+      return resolve(filteredBooks);
+    }, 600);
+  });
+
+  const filteredBooks = await promise;
+
   if (filteredBooks.length > 0) {
     return res.status(200).json({ books: filteredBooks });
   } else {
